@@ -1,0 +1,16 @@
+{
+  "name": "proudcat-web",
+  "version": "1.0.0",
+  "description": "proudcat studio web site",
+  "main": "index.js",
+  "dependencies": {
+    "mongoose": "^4.1.12",
+    "express": "^4.13.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
