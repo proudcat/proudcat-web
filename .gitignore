@@ -1,2 +1,11 @@
-# nodejs
+# node package folder
 node_modules/
+
+# idea project folder
+.idea/
+
+# express output folder
+bin/
+
+#MAC system file
+.DS_Store
