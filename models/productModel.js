@@ -13,7 +13,7 @@ var schema = new mongoose.Schema({
     /**
      * 名字
      */
-    name: {type: String, index: true},
+    name: {type: String, index: true, required: true},
 
     /**
      * 图像地址
@@ -33,13 +33,8 @@ var schema = new mongoose.Schema({
     /**
      * 新品 true:新品 false:非新品
      */
-    recently: Boolean
+    recently: {type: Boolean, default: false}
 
-    //comments: [{
-    //    user_id: String,
-    //    message: String,
-    //    date: {type: Date, default: Date.now}
-    //}]
 }, {collection: 'product'});
 
 schema.methods.save2db = function () {
@@ -61,13 +56,6 @@ var model = mongoose.model('product', schema);
 //    if (err) return handleError(err);
 //    // saved!
 //})
-//
-//// or
-//
-//Tank.create({ size: 'small' }, function (err, small) {
-//    if (err) return handleError(err);
-//    // saved!
-//})
 
 //var conditions = { name: 'borne' }
 //    , update = { $set: { title: 'xxxxb' }}
@@ -83,37 +71,30 @@ var model = mongoose.model('product', schema);
  */
 module.exports = {
 
-    remove: function (condition, cb) {
-        model.remove(condition, function (err, doc) {
-            cb(err, doc);
-        })
+    remove: function (id, cb) {
+        var conditions = {_id: id};
+        var options;
+        model.findOneAndRemove(conditions, function (error, doc) {
+            cb(error, doc);
+        });
+
     },
 
     /**
-     *
-     * @param conditions   { _id: 123 }
-     * @param update    { $set: { fooCount: 118 }}
-     * @param options { upsert: true ,multi:true}
+     * update model
+     * @param id
+     * @param condition
      * @param cb
      */
-    update: function (conditions, update, options, cb) {
-        model.update(conditions, update, options, function () {
-            cb();
+    update: function (json, cb) {
+
+        var options = {upsert: true, multi: false};
+
+        model.findOneAndUpdate({_id: json._id}, json, options, function (err, doc) {
+            cb(err, doc);
         });
-
-        //model.findOne(conditions, function (err, user) {
-        //    user.Points += points;
-        //    user.save(function (err) {
-        //        if (err) {
-        //            return next(err);
-        //        }
-        //    });
-        //});
     },
 
-    findOneAndUpdate: function (conditions, update, options, cb) {
-
-    },
 
     /**
      * 新建model
@@ -131,7 +112,6 @@ module.exports = {
         });
     },
 
-
     /**
      * 查找某个model
      * @param condition { _id: xx,name:xxx}
@@ -139,18 +119,20 @@ module.exports = {
      */
     findOne: function (condition, cb) {
         model.findOne(condition, function (err, doc) {
-            cb(err, doc.lean());
+            cb(err, doc);
         });
-
     },
 
     /**
      * 查找全部model
      * TODO:分页机制
+     * @conditions
+     * @param page
+     *  {page:2,number:3}
      * @param cb
      */
-    find: function (cb) {
-        model.find(function (err, docs) {
+    findAll: function (cb) {
+        model.find({}).exec(function (err, docs) {
             cb(err, docs.lean());
         });
     }
