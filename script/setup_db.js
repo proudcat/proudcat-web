@@ -24,13 +24,21 @@
 var process = require('child_process');
 var os = require('os');
 
+//系统平台
 var platform = os.platform();
+
+//启动数据库的 shell 的 path
 var shell = './start.sh';
 var shell_auth = './start_auth.sh';
 
-if (platform == 'win32') { //windows
-  shell = './start.bat';
-  shell_auth = './start_auth.bat';
+//后台启动项目方式(default:mac & *nux)
+var start_mongo_shell = shell + ' &';
+
+//windows 平台特殊处理
+if (platform == 'win32') {
+  shell = 'start.bat';
+  shell_auth = 'start_auth.bat';
+  start_mongo_shell = 'START /B ' + shell;
 }
 
 console.log('-----------------------------------------');
@@ -39,18 +47,22 @@ console.log('START CONFIGURING YOUR MONGO, PLEASE WAIT FOR A MOMMENT.....');
 console.log('starting mongodb!');
 
 //start mongo db
-var proc = process.exec(shell + ' &', function(error,
+var proc = process.exec(start_mongo_shell, function(error,
   stdout, stderr) {
   if (error !== null) {
     console.error('SHIT:', error);
   } else {
     console.log('Finished\n');
-  };
+  }
+});
+
+proc.on('error', function(code, signal) {
+  console.error(code, signal);
 });
 
 proc.on('exit', function(code) {
 
-  if (code != 0) {
+  if (code !== 0) {
     console.error('start mongodb error! exit code: ', code);
     return;
   }
@@ -80,6 +92,7 @@ proc.on('exit', function(code) {
 
         console.log('-----------------------------------------');
 
+        //only works on mac & *nix.so deprecated...
         // process.exec('pkill mongod', function(error, stdout, stderr) {
         //   if (error != null) {
         //     console.log('failed to shutdown mongo database!');
@@ -90,7 +103,7 @@ proc.on('exit', function(code) {
         //   }
         // });
       });
-    })
+    });
 });
 
 //Create the user administrator in admin db.
@@ -99,7 +112,7 @@ var auth = function(cb) {
     stderr) {
     if (error !== null) {
       console.log('SHIT ERROR: ' + error);
-    };
+    }
     cb();
   });
-}
+};
